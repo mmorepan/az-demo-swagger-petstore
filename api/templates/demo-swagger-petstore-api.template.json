@@ -1,0 +1,340 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApimServiceName": {
+      "type": "string"
+    },
+    "PolicyXMLBaseUrl": {
+      "type": "string"
+    },
+    "BackendServiceUrl": {
+      "type": "string"
+    },
+    "OauthServerId": {
+      "type": "string"
+    },
+    "ProductsApiName": {
+      "type": "object"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "name": "[concat(parameters('ApimServiceName'), '/demo-swagger-petstore')]",
+      "type": "Microsoft.ApiManagement/service/apis",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [],
+      "properties": {
+        "displayName": "Demo Swagger Petstore",
+        "apiRevision": "1",
+        "description": "This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.",
+        "subscriptionRequired": true,
+        "serviceUrl": "[parameters('BackendServiceUrl')]",
+        "path": "demoaz/v1",
+        "protocols": [
+          "https"
+        ],
+        "authenticationSettings": {
+          "oAuth2": {
+            "authorizationServerId": "[parameters('OauthServerId')]"
+          }
+        },
+        "subscriptionKeyParameterNames": {
+          "header": "Ocp-Apim-Subscription-Key",
+          "query": "subscription-key"
+        },
+        "isCurrent": true
+      },
+      "resources": []
+    },
+    {
+      "name": "[concat(parameters('ApimServiceName'), '/demo-swagger-petstore/5f2891a6a6ad26110cdf56ef')]",
+      "type": "Microsoft.ApiManagement/service/apis/schemas",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'demo-swagger-petstore')]"
+      ],
+      "properties": {
+        "contentType": "application/vnd.ms-azure-apim.swagger.definitions+json",
+        "document": {
+          "value": "{\"ApiResponse\":{\"type\":\"object\",\"properties\":{\"code\":{\"type\":\"integer\",\"format\":\"int32\"},\"type\":{\"type\":\"string\"},\"message\":{\"type\":\"string\"}}},\"Category\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\"},\"name\":{\"type\":\"string\"}},\"xml\":{\"name\":\"Category\"}},\"Pet\":{\"type\":\"object\",\"required\":[\"name\",\"photoUrls\"],\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\"},\"category\":{\"$ref\":\"#/definitions/Category\"},\"name\":{\"type\":\"string\",\"example\":\"doggie\"},\"photoUrls\":{\"type\":\"array\",\"xml\":{\"wrapped\":true},\"items\":{\"type\":\"string\",\"xml\":{\"name\":\"photoUrl\"}}},\"tags\":{\"type\":\"array\",\"xml\":{\"wrapped\":true},\"items\":{\"xml\":{\"name\":\"tag\"},\"$ref\":\"#/definitions/Tag\"}},\"status\":{\"type\":\"string\",\"description\":\"pet status in the store\",\"enum\":[\"available\",\"pending\",\"sold\"]}},\"xml\":{\"name\":\"Pet\"}},\"Tag\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\"},\"name\":{\"type\":\"string\"}},\"xml\":{\"name\":\"Tag\"}},\"Order\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\"},\"petId\":{\"type\":\"integer\",\"format\":\"int64\"},\"quantity\":{\"type\":\"integer\",\"format\":\"int32\"},\"shipDate\":{\"type\":\"string\",\"format\":\"date-time\"},\"status\":{\"type\":\"string\",\"description\":\"Order Status\",\"enum\":[\"placed\",\"approved\",\"delivered\"]},\"complete\":{\"type\":\"boolean\"}},\"xml\":{\"name\":\"Order\"}},\"User\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\"},\"username\":{\"type\":\"string\"},\"firstName\":{\"type\":\"string\"},\"lastName\":{\"type\":\"string\"},\"email\":{\"type\":\"string\"},\"password\":{\"type\":\"string\"},\"phone\":{\"type\":\"string\"},\"userStatus\":{\"type\":\"integer\",\"format\":\"int32\",\"description\":\"User Status\"}},\"xml\":{\"name\":\"User\"}},\"PetArray\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/definitions/Pet\"}},\"StoreInventoryGet200ApplicationJsonResponse\":{\"type\":\"object\",\"additionalProperties\":{\"type\":\"integer\",\"format\":\"int32\"}}}"
+        }
+      }
+    },
+    {
+      "name": "[concat(parameters('ApimServiceName'), '/demo-swagger-petstore/addPet')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'demo-swagger-petstore')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'demo-swagger-petstore', '5f2891a6a6ad26110cdf56ef')]"
+      ],
+      "properties": {
+        "displayName": "Add a new pet to the store",
+        "method": "POST",
+        "urlTemplate": "/pet",
+        "templateParameters": [],
+        "description": "",
+        "request": {
+          "description": "Pet object that needs to be added to the store",
+          "queryParameters": [],
+          "headers": [],
+          "representations": [
+            {
+              "contentType": "application/json",
+              "schemaId": "5f2891a6a6ad26110cdf56ef",
+              "typeName": "Pet"
+            },
+            {
+              "contentType": "application/xml",
+              "schemaId": "5f2891a6a6ad26110cdf56ef",
+              "typeName": "Pet"
+            }
+          ]
+        },
+        "responses": [
+          {
+            "statusCode": 405,
+            "description": "Invalid input",
+            "representations": [
+              {
+                "contentType": "application/json"
+              },
+              {
+                "contentType": "application/xml"
+              }
+            ],
+            "headers": []
+          }
+        ]
+      },
+      "resources": []
+    },
+    {
+      "name": "[concat(parameters('ApimServiceName'), '/demo-swagger-petstore/addPet/pet')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'demo-swagger-petstore', 'addPet')]"
+      ],
+      "properties": {
+        "displayName": "pet"
+      }
+    },
+    {
+      "name": "[concat(parameters('ApimServiceName'), '/demo-swagger-petstore/findPetsByStatus')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'demo-swagger-petstore')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'demo-swagger-petstore', '5f2891a6a6ad26110cdf56ef')]"
+      ],
+      "properties": {
+        "displayName": "Finds Pets by status",
+        "method": "GET",
+        "urlTemplate": "/pet/findByStatus?status={status}",
+        "templateParameters": [
+          {
+            "name": "status",
+            "description": "Status values that need to be considered for filter",
+            "type": "array",
+            "required": true,
+            "values": []
+          }
+        ],
+        "description": "Multiple status values can be provided with comma separated strings",
+        "request": {
+          "queryParameters": [],
+          "headers": [],
+          "representations": []
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "successful operation",
+            "representations": [
+              {
+                "contentType": "application/json",
+                "schemaId": "5f2891a6a6ad26110cdf56ef",
+                "typeName": "PetArray"
+              },
+              {
+                "contentType": "application/xml",
+                "schemaId": "5f2891a6a6ad26110cdf56ef",
+                "typeName": "PetArray"
+              }
+            ],
+            "headers": []
+          },
+          {
+            "statusCode": 400,
+            "description": "Invalid status value",
+            "representations": [
+              {
+                "contentType": "application/json"
+              },
+              {
+                "contentType": "application/xml"
+              }
+            ],
+            "headers": []
+          }
+        ]
+      },
+      "resources": []
+    },
+    {
+      "name": "[concat(parameters('ApimServiceName'), '/demo-swagger-petstore/findPetsByStatus/pet')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'demo-swagger-petstore', 'findPetsByStatus')]"
+      ],
+      "properties": {
+        "displayName": "pet"
+      }
+    },
+    {
+      "name": "[concat(parameters('ApimServiceName'), '/demo-swagger-petstore/placeOrder')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'demo-swagger-petstore')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'demo-swagger-petstore', '5f2891a6a6ad26110cdf56ef')]"
+      ],
+      "properties": {
+        "displayName": "Place an order for a pet",
+        "method": "POST",
+        "urlTemplate": "/store/order",
+        "templateParameters": [],
+        "description": "",
+        "request": {
+          "description": "order placed for purchasing the pet",
+          "queryParameters": [],
+          "headers": [],
+          "representations": [
+            {
+              "contentType": "application/json",
+              "schemaId": "5f2891a6a6ad26110cdf56ef",
+              "typeName": "Order"
+            }
+          ]
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "successful operation",
+            "representations": [
+              {
+                "contentType": "application/json",
+                "schemaId": "5f2891a6a6ad26110cdf56ef",
+                "typeName": "Order"
+              },
+              {
+                "contentType": "application/xml",
+                "schemaId": "5f2891a6a6ad26110cdf56ef",
+                "typeName": "Order"
+              }
+            ],
+            "headers": []
+          },
+          {
+            "statusCode": 400,
+            "description": "Invalid Order",
+            "representations": [
+              {
+                "contentType": "application/json"
+              },
+              {
+                "contentType": "application/xml"
+              }
+            ],
+            "headers": []
+          }
+        ]
+      },
+      "resources": []
+    },
+    {
+      "name": "[concat(parameters('ApimServiceName'), '/demo-swagger-petstore/placeOrder/store')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'demo-swagger-petstore', 'placeOrder')]"
+      ],
+      "properties": {
+        "displayName": "store"
+      }
+    },
+    {
+      "name": "[concat(parameters('ApimServiceName'), '/demo-swagger-petstore/getInventory')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'demo-swagger-petstore')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'demo-swagger-petstore', '5f2891a6a6ad26110cdf56ef')]"
+      ],
+      "properties": {
+        "displayName": "Returns pet inventories by status",
+        "method": "GET",
+        "urlTemplate": "/store/inventory",
+        "templateParameters": [],
+        "description": "Returns a map of status codes to quantities",
+        "request": {
+          "queryParameters": [],
+          "headers": [],
+          "representations": []
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "successful operation",
+            "representations": [
+              {
+                "contentType": "application/json",
+                "schemaId": "5f2891a6a6ad26110cdf56ef",
+                "typeName": "StoreInventoryGet200ApplicationJsonResponse"
+              }
+            ],
+            "headers": []
+          }
+        ]
+      },
+      "resources": []
+    },
+    {
+      "name": "[concat(parameters('ApimServiceName'), '/demo-swagger-petstore/getInventory/store')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'demo-swagger-petstore', 'getInventory')]"
+      ],
+      "properties": {
+        "displayName": "store"
+      }
+    },
+    {
+      "name": "[concat(parameters('ApimServiceName'), '/demo-swagger-petstore/policy')]",
+      "type": "Microsoft.ApiManagement/service/apis/policies",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'demo-swagger-petstore')]"
+      ],
+      "properties": {
+        "format": "rawxml-link",
+        "value": "[concat(parameters('PolicyXMLBaseUrl'), '/demo-swagger-petstore-apiPolicy.xml')]"
+      }
+    },
+    {
+      "name": "[concat(parameters('ApimServiceName'), '/', parameters('ProductsApiName').wappedev, '/', 'demo-swagger-petstore')]",
+      "type": "Microsoft.ApiManagement/service/products/apis",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'demo-swagger-petstore')]"
+      ],
+      "properties": {}
+    }
+  ],
+  "outputs": {}
+}
